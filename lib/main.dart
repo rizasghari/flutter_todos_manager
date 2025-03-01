@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todos_manager/features/todo/presentation/views/todo_list_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 void main() {
@@ -12,6 +13,9 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: TodoListPage(),
+    );
   }
 }
