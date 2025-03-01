@@ -4,26 +4,87 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/colors.dart';
 import '../../../../core/widgets/section_title.dart';
+import '../../../../core/widgets/task_tile.dart';
+import '../../domain/entities/todo.dart';
+import '../providers/todo_providers.dart';
 
 class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
+
+  late AsyncValue<List<Todo>> tasks;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    tasks = ref.watch(todoListProvider);
+    var viewState = ref.watch(todoListProvider.notifier);
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: _appBar(),
       body: _body(),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.bottomRight,
+            end: Alignment.topLeft,
+            colors: [Color(0xFFDE83B0), Color(0xFFC59ADF)],
+          ),
+        ),
+        child: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: Colors.transparent,
+          shape: CircleBorder(),
+          child: const Icon(Icons.add, color: lightDarkBackgroundColor, size: 30),
+        ),
+      ),
     );
   }
 
   Widget _body() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
-      child: SingleChildScrollView(
-          child: Column(children: [
-        _progressSection(),
-      ])),
+    return tasks.when(
+      data: (data) => Padding(
+        padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _progressSection(),
+              SizedBox(height: 25),
+              _todaysTasksSection(),
+            ],
+          ),
+        ),
+      ),
+      error: (err, stack) => Center(child: Text('Error: $err')),
+      loading: () => Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _todaysTasksSection() {
+    return Column(children: [
+      SectionTitle(
+        title: "Today's Tasks",
+        onSeeAllPressed: () {
+          debugPrint("Today's Tasks");
+        },
+      ),
+      SizedBox(height: 10),
+      _todaysTasksList(),
+    ]);
+  }
+
+  Widget _todaysTasksList() {
+    return ListView.builder(
+      shrinkWrap: true, // limits the height to its children
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: tasks.value?.length ?? 0,
+      itemBuilder: (context, index) {
+        return TaskTile(
+          todo: tasks.value?[index].todo ?? "Task $index",
+          completed: tasks.value?[index].completed ?? false,
+          date: DateTime.now(),
+        );
+      },
     );
   }
 
@@ -146,31 +207,35 @@ class HomePage extends ConsumerWidget {
           ),
         ),
       ),
-      bottom: PreferredSize(
-        preferredSize: Size.fromHeight(50),
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-                decoration: InputDecoration(
-                    filled: true,
-                    fillColor: lightDarkBackgroundColor,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    hintText: 'Search tasks here...',
-                    hintStyle: TextStyle(
+      bottom: _searchBar(),
+    );
+  }
+
+  PreferredSizeWidget _searchBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(50),
+      child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: TextField(
+              decoration: InputDecoration(
+                  filled: true,
+                  fillColor: lightDarkBackgroundColor,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  hintText: 'Search tasks here...',
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Icon(
+                      Icons.search,
                       color: Colors.grey,
-                      fontSize: 16,
                     ),
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Icon(
-                        Icons.search,
-                        color: Colors.grey,
-                      ),
-                    )))),
-      ),
+                  )))),
     );
   }
 
