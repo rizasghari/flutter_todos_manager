@@ -19,54 +19,84 @@ class TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        decoration: BoxDecoration(
-          color: lightDarkBackgroundColor,
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+    return SizedBox(
+      width: double.infinity,
+      height: 90,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10.0),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Flexible(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    todo,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                  SizedBox(height: 5),
-                  Row(children: [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      size: 16,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      "${date.day}/${date.month}/${date.year}",
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 16,
-                      ),
-                    ),
-                    Spacer(),
-                  ])
-                ],
+            Container(
+              width: 15,
+              height: 80,
+              decoration: BoxDecoration(
+                color: completed ? Colors.greenAccent : Colors.redAccent,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                ),
               ),
             ),
-            Flexible(
-              flex: 1,
-              child: CircleCheckbox(value: completed, onChanged: onToggle),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                decoration: BoxDecoration(
+                  color: lightDarkBackgroundColor,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            todo,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          SizedBox(height: 5),
+                          Row(children: [
+                            Icon(
+                              Icons.calendar_today_outlined,
+                              size: 16,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              "${date.day}/${date.month}/${date.year}",
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 16,
+                              ),
+                            ),
+                            Spacer(),
+                          ])
+                        ],
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child:
+                          CircleCheckbox(value: completed, onChanged: onToggle),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
