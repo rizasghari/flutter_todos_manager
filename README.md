@@ -1,3 +1,13 @@
 # flutter_todos_manager
 
 A minimal cross-platform todos manager application written in Flutter
+
+## Folder Structure
+A clear folder structure is the foundation of maintainable code. We’ll use a feature-based Clean Architecture approach: group code by feature, and within each feature separate layers for presentation, domain, and data. This keeps things organized without over-complicating the project. For a to-do app (single feature), it might look like:
+
+### Roles of each folder:
+- core/: Houses app-wide utilities or services (e.g. theme, common widgets, constants). Keep this minimal for shared code used by multiple features.
+- features/: Each feature (module) gets its own folder. Here we have just todo/, but you can add more (e.g., auth/, profile/) as your app grows. This feature grouping makes it easy for team members to work independently on different modules.
+- domain/: Defines the business logic and data abstractions. It contains entities (data models that represent core application data) and repository interfaces (abstract classes defining operations like addTodo, getTodos). Domain classes are pure Dart, with no Flutter or database dependencies. This layer represents what the app does (the “Model” in MVVM) and should be independent of how or where data is stored.
+- data/: Handles data access details. It includes concrete data sources (e.g., a TodoLocalDataSource for a local Hive database, or a TodoRemoteDataSource for an API) and models/DTOs for data serialization. It also provides repository implementations that fulfill the domain’s repository interfaces by coordinating those data sources. For example, TodoRepositoryImpl might fetch from an API or local cache as needed. The Data layer corresponds to Clean Architecture’s infrastructure layer – it knows how to talk to the outside world (database, network) but is isolated behind abstract interfaces.
+- presentation/: Contains the UI code (Flutter widgets) and ViewModels/controllers that manage UI state. The UI (views) should be a “dumb” display of data – Widgets that reflect the state and invoke methods on ViewModels based on user input. The viewmodels (also called controllers in some architectures) handle user events (button taps, etc.), execute business logic (often by calling domain layer or use cases), and expose state back to the UI (e.g., a list of todos, or loading/error flags). In MVVM, ViewModels are the bridge between View and Model. We use Riverpod providers to instantiate and manage these ViewModels and other state, which we’ll detail next.
