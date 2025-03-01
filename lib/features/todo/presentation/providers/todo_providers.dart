@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/interceptors/logger_interceptor.dart';
 import '../../data/datasources/todo_api_datasource.dart';
 import '../../data/repositories/todo_repository_impl.dart';
 import '../../domain/entities/todo.dart';
@@ -12,6 +13,7 @@ final dioProvider = Provider<Dio>((ref) {
   dio.options.baseUrl = 'https://dummyjson.com';
   dio.options.connectTimeout = Duration(seconds: 5);
   dio.options.receiveTimeout = Duration(seconds: 3);
+  dio.interceptors.add(LoggerInterceptor());
   return dio;
 });
 
