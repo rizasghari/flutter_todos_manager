@@ -9,20 +9,47 @@ import '../../domain/entities/todo.dart';
 import '../providers/todo_providers.dart';
 import '../viewmodels/todo_list_viewmodel.dart';
 
-class HomePage extends ConsumerWidget {
-  HomePage({super.key});
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key});
 
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
   late AsyncValue<List<Todo>> tasks;
   late TodoListViewModel viewModel;
+  double progress = 0.0;
 
   void onTaskToggle(int id) {
     viewModel.toggleTodoStatus(id);
   }
 
+  void _setProgress(double percentage) async {
+    await Future.delayed(Duration(milliseconds: 1000));
+    setState(() {
+      progress = percentage;
+    });
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     tasks = ref.watch(todoListProvider);
     viewModel = ref.watch(todoListProvider.notifier);
+
+    ref.listen<AsyncValue<List<Todo>>>(todoListProvider, (previous, next) {
+      next.when(
+        data: (todos) {
+          var percentage = todos.where((t) => t.completed).length / todos.length;
+          _setProgress(percentage);
+        },
+        loading: () {},
+        error: (error, stack) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Error: $error')));
+        },
+      );
+    });
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -41,7 +68,8 @@ class HomePage extends ConsumerWidget {
           onPressed: () {},
           backgroundColor: Colors.transparent,
           shape: CircleBorder(),
-          child: const Icon(Icons.add, color: lightDarkBackgroundColor, size: 30),
+          child:
+              const Icon(Icons.add, color: lightDarkBackgroundColor, size: 30),
         ),
       ),
     );
@@ -71,7 +99,9 @@ class HomePage extends ConsumerWidget {
   Widget _tasksSection(DateTime date) {
     return Column(children: [
       SectionTitle(
-        title: date.day == DateTime.now().day ? "Today's Tasks" : "Tomorrow's Tasks",
+        title: date.day == DateTime.now().day
+            ? "Today's Tasks"
+            : "Tomorrow's Tasks",
         onSeeAllPressed: () {},
       ),
       SizedBox(height: 10),
@@ -81,7 +111,8 @@ class HomePage extends ConsumerWidget {
 
   Widget _todaysTasksList({required bool addBottomPadding}) {
     return ListView.builder(
-      shrinkWrap: true, // limits the height to its children
+      shrinkWrap: true,
+      // limits the height to its children
       physics: NeverScrollableScrollPhysics(),
       itemCount: tasks.value?.length ?? 0,
       padding: EdgeInsets.only(bottom: addBottomPadding ? 100 : 0),
@@ -132,7 +163,7 @@ class HomePage extends ConsumerWidget {
             ),
           ),
           Text(
-            "2/3 Tasks Completed",
+            "${tasks.value?.where((t) => t.completed).length}/${tasks.value?.length} Tasks Completed",
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),
               fontSize: 16,
@@ -158,7 +189,7 @@ class HomePage extends ConsumerWidget {
               ),
             ),
             Text(
-              "66%",
+              "${(progress * 100).round()}%",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -181,8 +212,10 @@ class HomePage extends ConsumerWidget {
             ),
             LayoutBuilder(
               builder: (context, constraints) {
-                final width = constraints.maxWidth * 0.66;
-                return Container(
+                final width = constraints.maxWidth * progress;
+                return AnimatedContainer(
+                  duration: const Duration(seconds: 3),
+                  curve: Curves.easeInCubic,
                   width: width,
                   height: 18,
                   decoration: BoxDecoration(
