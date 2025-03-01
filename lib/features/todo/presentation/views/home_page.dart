@@ -7,16 +7,22 @@ import '../../../../core/widgets/section_title.dart';
 import '../../../../core/widgets/task_tile.dart';
 import '../../domain/entities/todo.dart';
 import '../providers/todo_providers.dart';
+import '../viewmodels/todo_list_viewmodel.dart';
 
 class HomePage extends ConsumerWidget {
   HomePage({super.key});
 
   late AsyncValue<List<Todo>> tasks;
+  late TodoListViewModel viewModel;
+
+  void onTaskToggle(int id) {
+    viewModel.toggleTodoStatus(id);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     tasks = ref.watch(todoListProvider);
-    var viewState = ref.watch(todoListProvider.notifier);
+    viewModel = ref.watch(todoListProvider.notifier);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -50,7 +56,9 @@ class HomePage extends ConsumerWidget {
             children: [
               _progressSection(),
               SizedBox(height: 25),
-              _todaysTasksSection(),
+              _tasksSection(DateTime.now()),
+              SizedBox(height: 25),
+              _tasksSection(DateTime.now().add(Duration(days: 1))),
             ],
           ),
         ),
@@ -60,29 +68,29 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _todaysTasksSection() {
+  Widget _tasksSection(DateTime date) {
     return Column(children: [
       SectionTitle(
-        title: "Today's Tasks",
-        onSeeAllPressed: () {
-          debugPrint("Today's Tasks");
-        },
+        title: date.day == DateTime.now().day ? "Today's Tasks" : "Tomorrow's Tasks",
+        onSeeAllPressed: () {},
       ),
       SizedBox(height: 10),
-      _todaysTasksList(),
+      _todaysTasksList(addBottomPadding: date.day != DateTime.now().day),
     ]);
   }
 
-  Widget _todaysTasksList() {
+  Widget _todaysTasksList({required bool addBottomPadding}) {
     return ListView.builder(
       shrinkWrap: true, // limits the height to its children
       physics: NeverScrollableScrollPhysics(),
       itemCount: tasks.value?.length ?? 0,
+      padding: EdgeInsets.only(bottom: addBottomPadding ? 100 : 0),
       itemBuilder: (context, index) {
         return TaskTile(
           todo: tasks.value?[index].todo ?? "Task $index",
           completed: tasks.value?[index].completed ?? false,
           date: DateTime.now(),
+          onToggle: (value) => onTaskToggle(tasks.value?[index].id ?? 0),
         );
       },
     );

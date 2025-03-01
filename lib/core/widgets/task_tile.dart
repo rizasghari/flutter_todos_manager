@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todos_manager/core/constants/colors.dart';
 
+import 'circle_checkbox.dart';
+
 class TaskTile extends StatelessWidget {
   final String todo;
   final DateTime date;
   final bool completed;
+  final ValueChanged<bool> onToggle;
 
   const TaskTile({
     super.key,
     required this.todo,
     required this.date,
     required this.completed,
+    required this.onToggle,
   });
 
   @override
@@ -62,10 +66,7 @@ class TaskTile extends StatelessWidget {
             ),
             Flexible(
               flex: 1,
-              child: Checkbox(
-                value: completed,
-                onChanged: (value) {},
-              ),
+              child: CircleCheckbox(value: completed, onChanged: onToggle),
             ),
           ],
         ),
