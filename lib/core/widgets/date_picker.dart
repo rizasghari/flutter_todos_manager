@@ -22,6 +22,8 @@ class _DatePickerState extends State<DatePicker> {
 
   int _currentWeekIndex = 0;
 
+  DateTime _selectedDate = DateTime.now();
+
   void _updateCurrentWeek(DateTime startDate) {
     currentWeekStartDate = startDate;
     currentWeekEndDate = startDate.add(Duration(days: 7));
@@ -30,6 +32,13 @@ class _DatePickerState extends State<DatePicker> {
   int _calculateTotalWeeks(DateTime startDate, DateTime endDate) {
     int totalDays = endDate.difference(startDate).inDays;
     return (totalDays / 7).ceil();
+  }
+
+  void _updateSelectedDate(DateTime selectedDate) {
+    setState(() {
+      _selectedDate = selectedDate;
+      debugPrint("Selected Date: $_selectedDate");
+    });
   }
 
   @override
@@ -59,7 +68,12 @@ class _DatePickerState extends State<DatePicker> {
                   DateTime date = weekStart.add(Duration(days: dayOffset));
                   return DateTile(
                     date: date,
-                    onDateSelected: (selectedDate) {},
+                    isSelected: date.day == _selectedDate.day &&
+                        date.month == _selectedDate.month &&
+                        date.year == _selectedDate.year,
+                    isDisabled: date.isBefore(DateTime.now().add(Duration(days: -1))),
+                    selectedDate: _selectedDate,
+                    onDateSelected: _updateSelectedDate,
                   );
                 },
               );
