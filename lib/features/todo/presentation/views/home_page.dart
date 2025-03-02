@@ -1,4 +1,5 @@
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     viewModel.toggleTodoStatus(id);
   }
 
+  void _refresh() async {
+    ref.refresh(todoListProvider);
+  }
+
   void _setProgress(double percentage) async {
     await Future.delayed(Duration(milliseconds: 1000));
     setState(() {
@@ -35,12 +40,13 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     tasks = ref.watch(todoListProvider);
-    viewModel = ref.watch(todoListProvider.notifier);
+    viewModel = ref.read(todoListProvider.notifier);
 
     ref.listen<AsyncValue<List<Todo>>>(todoListProvider, (previous, next) {
       next.when(
         data: (todos) {
-          var percentage = todos.where((t) => t.completed).length / todos.length;
+          var percentage =
+              todos.where((t) => t.completed).length / todos.length;
           _setProgress(percentage);
         },
         loading: () {},
@@ -65,7 +71,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ),
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            context.go('/create');
+          },
           backgroundColor: Colors.transparent,
           shape: CircleBorder(),
           child:
@@ -77,17 +85,22 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _body() {
     return tasks.when(
-      data: (data) => Padding(
-        padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _progressSection(),
-              SizedBox(height: 25),
-              _tasksSection(DateTime.now()),
-              SizedBox(height: 25),
-              _tasksSection(DateTime.now().add(Duration(days: 1))),
-            ],
+      data: (data) => RefreshIndicator(
+        onRefresh: () async {
+          var _ = ref.refresh(todoListProvider);
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _progressSection(),
+                SizedBox(height: 25),
+                _tasksSection(DateTime.now()),
+                SizedBox(height: 25),
+                _tasksSection(DateTime.now().add(Duration(days: 1))),
+              ],
+            ),
           ),
         ),
       ),

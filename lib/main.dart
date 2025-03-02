@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_todos_manager/features/todo/presentation/views/home_page.dart';
-import 'package:flutter_todos_manager/features/todo/presentation/views/todo_list_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import 'core/routing/router.dart';
 
 void main() {
   runApp(ProviderScope(
@@ -14,12 +14,12 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Roboto',
       ),
-      home: HomePage(),
+      routerConfig: router,
     );
   }
 }

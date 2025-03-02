@@ -21,7 +21,11 @@ class TodoListViewModel extends StateNotifier<AsyncValue<List<Todo>>> {
 
   Future<void> addTodo(String title) async {
     final newTodo = Todo(
-        id: Random().nextInt(10000), todo: title, completed: false, userId: 1);
+      id: Random().nextInt(10000),
+      todo: title,
+      completed: false,
+      userId: 1,
+    );
     state = AsyncValue.data([...?state.value, newTodo]);
     try {
       await _repository.addTodo(newTodo);
@@ -35,8 +39,11 @@ class TodoListViewModel extends StateNotifier<AsyncValue<List<Todo>>> {
     final idx = currentList.indexWhere((t) => t.id == id);
     if (idx == -1) return;
     final todo = currentList[idx];
-    final updated =
-        Todo(id: todo.id, todo: todo.todo, completed: !todo.completed, userId: todo.userId);
+    final updated = Todo(
+        id: todo.id,
+        todo: todo.todo,
+        completed: !todo.completed,
+        userId: todo.userId);
 
     final newList = [...currentList];
     newList[idx] = updated;
