@@ -12,22 +12,17 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
+  final PageController _pageController = PageController(initialPage: 0);
+
   final startDate = DateTime.now();
   final endDate = DateTime.now().add(const Duration(days: 365));
 
   DateTime currentWeekStartDate = DateTime.now();
-  DateTime currentWeekEndDate = DateTime.now().add(Duration(days: 7));
-
-  final PageController _pageController = PageController(initialPage: 0);
+  DateTime currentWeekEndDate = DateTime.now().add(Duration(days: 6));
 
   int _currentWeekIndex = 0;
 
   DateTime _selectedDate = DateTime.now();
-
-  void _updateCurrentWeek(DateTime startDate) {
-    currentWeekStartDate = startDate;
-    currentWeekEndDate = startDate.add(Duration(days: 7));
-  }
 
   int _calculateTotalWeeks(DateTime startDate, DateTime endDate) {
     int totalDays = endDate.difference(startDate).inDays;
@@ -37,7 +32,6 @@ class _DatePickerState extends State<DatePicker> {
   void _updateSelectedDate(DateTime selectedDate) {
     setState(() {
       _selectedDate = selectedDate;
-      debugPrint("Selected Date: $_selectedDate");
     });
   }
 
@@ -60,19 +54,18 @@ class _DatePickerState extends State<DatePicker> {
             },
             itemCount: totalWeeks,
             itemBuilder: (context, pageIndex) {
-              DateTime weekStart = startDate.add(Duration(days: pageIndex * 7));
-              _updateCurrentWeek(weekStart);
+              currentWeekStartDate = startDate.add(Duration(days: pageIndex * 7));
+              currentWeekEndDate = currentWeekStartDate.add(Duration(days: 6));
               List<Widget> dayTiles = List.generate(
                 7,
                 (dayOffset) {
-                  DateTime date = weekStart.add(Duration(days: dayOffset));
+                  DateTime date = currentWeekStartDate.add(Duration(days: dayOffset));
                   return DateTile(
                     date: date,
                     isSelected: date.day == _selectedDate.day &&
                         date.month == _selectedDate.month &&
                         date.year == _selectedDate.year,
                     isDisabled: date.isBefore(DateTime.now().add(Duration(days: -1))),
-                    selectedDate: _selectedDate,
                     onDateSelected: _updateSelectedDate,
                   );
                 },
@@ -91,13 +84,14 @@ class _DatePickerState extends State<DatePicker> {
   Widget _navigation() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         IconButton(
           icon: SvgPicture.asset('assets/icons/left.svg'),
           onPressed: () {
             _pageController.previousPage(
               duration: Duration(milliseconds: 300),
-              curve: Curves.ease,
+              curve: Curves.easeOut,
             );
           },
         ),
@@ -113,7 +107,7 @@ class _DatePickerState extends State<DatePicker> {
           onPressed: () {
             _pageController.nextPage(
               duration: Duration(milliseconds: 300),
-              curve: Curves.ease,
+              curve: Curves.easeOut,
             );
           },
         ),

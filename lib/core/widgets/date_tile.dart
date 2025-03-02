@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 
 class DateTile extends StatelessWidget {
   final DateTime date;
-  final DateTime selectedDate;
   final bool isSelected;
   final bool isDisabled;
   final ValueChanged<DateTime> onDateSelected;
@@ -15,7 +14,6 @@ class DateTile extends StatelessWidget {
     required this.onDateSelected,
     required this.isSelected,
     required this.isDisabled,
-    required this.selectedDate,
   });
 
   void _onDateSelected() {
