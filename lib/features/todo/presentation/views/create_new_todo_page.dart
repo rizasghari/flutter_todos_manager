@@ -12,6 +12,9 @@ class CreateNewTodoPage extends ConsumerWidget {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
+  TimeOfDay startTime = TimeOfDay.now();
+  TimeOfDay endTime = TimeOfDay.now();
+
   CreateNewTodoPage({super.key});
 
   @override
@@ -28,6 +31,7 @@ class CreateNewTodoPage extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 100),
           scrollDirection: Axis.vertical,
           child: Padding(
             padding: EdgeInsets.all(20),
@@ -52,11 +56,17 @@ class CreateNewTodoPage extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: TimePicker(label: "Start Time")),
-        SizedBox(
-          width: 15,
-        ),
-        Expanded(child: TimePicker(label: "End Time")),
+        Expanded(
+            child: TimePicker(
+          label: "Start Time",
+          onTimeChanged: (startTime) => this.startTime = startTime,
+        )),
+        SizedBox(width: 15),
+        Expanded(
+            child: TimePicker(
+          label: "End Time",
+          onTimeChanged: (endTime) => this.endTime = endTime,
+        )),
       ],
     );
   }
@@ -68,10 +78,10 @@ class CreateNewTodoPage extends ConsumerWidget {
       right: 0,
       child: Container(
         width: double.infinity,
-        height: 100,
+        height: 50,
         color: backgroundColor,
         child: Padding(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
           child: GradientButton(label: "Create Task", onPressed: () => {}),
         ),
       ),
@@ -112,7 +122,7 @@ class CreateNewTodoPage extends ConsumerWidget {
           "Schedule",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 22,
+            fontSize: 20,
           ),
         ),
         SizedBox(height: 10),
