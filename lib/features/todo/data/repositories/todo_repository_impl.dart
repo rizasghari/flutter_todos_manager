@@ -16,8 +16,10 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
-  Future<void> addTodo(Todo todo) async {
-    _store.add(todo);
+  Future<List<Todo>> addTodo(Todo todo) async {
+    var addedTodo = await apiTodoDataSource.addTodo(todo);
+    _store.add(addedTodo);
+    return List.unmodifiable(_store);
   }
 
   @override

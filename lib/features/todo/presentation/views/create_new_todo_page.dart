@@ -9,10 +9,13 @@ import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/widgets/priority_tile.dart';
 import '../../../../core/widgets/time_picker.dart';
 import '../../domain/entities/priority.dart';
+import '../providers/todo_providers.dart';
+import '../viewmodels/todo_list_viewmodel.dart';
 
 class CreateNewTodoPage extends ConsumerStatefulWidget {
   const CreateNewTodoPage({super.key});
 
+  @override
   ConsumerState<CreateNewTodoPage> createState() => _CreateNewTodoPageState();
 }
 
@@ -27,6 +30,41 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
   TimeOfDay _endTime = TimeOfDay.now();
   Priority _priority = Priority.low;
   bool _getAlert = false;
+
+  late final TodoListViewModel viewModel;
+
+  @override
+  void initState() {
+    viewModel = ref.read(todoListProvider.notifier);
+    super.initState();
+  }
+
+  void _addTask() async {
+    var result = await viewModel.addTodo(
+      _selectedDate,
+      _titleController.text,
+      _descriptionController.text,
+      _startTime,
+      _endTime,
+      _priority,
+      _getAlert,
+    );
+    if (result && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Task added successfully'),
+        ),
+      );
+      context.pop();
+      var _ = ref.refresh(todoListProvider);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add task'),
+        ),
+      );
+    }
+  }
 
   void _onPrioritySelected(Priority priority) {
     setState(() {
@@ -157,7 +195,9 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
           child: FormField<TimeOfDay>(
             initialValue: _startTime,
             validator: (value) {
-              if (value == null || value.isAfter(_endTime) || value.isAtSameTimeAs(_endTime)) {
+              if (value == null ||
+                  value.isAfter(_endTime) ||
+                  value.isAtSameTimeAs(_endTime)) {
                 return "Invalid start time";
               }
               return null;
@@ -178,7 +218,9 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
           child: FormField<TimeOfDay>(
             initialValue: _endTime,
             validator: (value) {
-              if (value == null || value.isBefore(_startTime) || value.isAtSameTimeAs(_startTime)) {
+              if (value == null ||
+                  value.isBefore(_startTime) ||
+                  value.isAtSameTimeAs(_startTime)) {
                 return "Invalid end time";
               }
               return null;
@@ -212,15 +254,18 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
           child: GradientButton(
             label: "Create Task",
             onPressed: () => {
-              if (_formKey.currentState!.validate()) {
-
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Please fill all the fields'),
-                  ),
-                )
-              },
+              if (_formKey.currentState!.validate())
+                {
+                  _addTask(),
+                }
+              else
+                {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please fill all the fields'),
+                    ),
+                  )
+                },
             },
           ),
         ),
