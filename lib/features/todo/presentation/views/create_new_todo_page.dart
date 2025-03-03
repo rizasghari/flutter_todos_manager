@@ -11,7 +11,7 @@ import '../../../../core/widgets/time_picker.dart';
 import '../../domain/entities/priority.dart';
 
 class CreateNewTodoPage extends ConsumerStatefulWidget {
-  CreateNewTodoPage({super.key});
+  const CreateNewTodoPage({super.key});
 
   ConsumerState<CreateNewTodoPage> createState() => _CreateNewTodoPageState();
 }
@@ -23,6 +23,7 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
   TimeOfDay _startTime = TimeOfDay.now();
   TimeOfDay _endTime = TimeOfDay.now();
   Priority _priority = Priority.low;
+  bool _getAlert = false;
 
   void _onPrioritySelected(Priority priority) {
     setState(() {
@@ -58,11 +59,38 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
                 _timePicker(),
                 SizedBox(height: 20),
                 _prioritySelection(),
+                SizedBox(height: 30),
+                _setAlert(),
               ],
             ),
           ),
         ),
         _stickyFooter(),
+      ],
+    );
+  }
+
+  Widget _setAlert() {
+    return Row(
+      children: [
+        Text(
+          "Get alert for this task",
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontSize: 18,
+          ),
+        ),
+        Spacer(),
+        Switch(
+          value: _getAlert,
+          activeColor: Colors.white,
+          activeTrackColor: Color(0XFFA378FF),
+          onChanged: (value) {
+            setState(() {
+              _getAlert = value;
+            });
+          },
+        ),
       ],
     );
   }
