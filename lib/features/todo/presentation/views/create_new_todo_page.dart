@@ -6,9 +6,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/widgets/date_picker.dart';
 import '../../../../core/widgets/gradient_button.dart';
+import '../../../../core/widgets/time_picker.dart';
 
 class CreateNewTodoPage extends ConsumerWidget {
-  const CreateNewTodoPage({super.key});
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  CreateNewTodoPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,17 +28,35 @@ class CreateNewTodoPage extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         SingleChildScrollView(
+          scrollDirection: Axis.vertical,
           child: Padding(
             padding: EdgeInsets.all(20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _calendar(),
-                _schedule(),
+                SizedBox(height: 20),
+                _titleAndDescription(),
+                SizedBox(height: 20),
+                _timePicker(),
               ],
             ),
           ),
         ),
         _stickyFooter(),
+      ],
+    );
+  }
+
+  Widget _timePicker() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(child: TimePicker(label: "Start Time")),
+        SizedBox(
+          width: 15,
+        ),
+        Expanded(child: TimePicker(label: "End Time")),
       ],
     );
   }
@@ -82,7 +104,52 @@ class CreateNewTodoPage extends ConsumerWidget {
     return DatePicker();
   }
 
-  Widget _schedule() {
-    return Container();
+  Widget _titleAndDescription() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Schedule",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+          ),
+        ),
+        SizedBox(height: 10),
+        TextField(
+          controller: _titleController,
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: lightDarkBackgroundColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              hintText: "Name",
+              hintStyle: TextStyle(
+                color: Colors.white.withValues(alpha: 0.8),
+                fontSize: 16,
+              )),
+        ),
+        SizedBox(height: 15),
+        TextField(
+          controller: _descriptionController,
+          maxLines: 4,
+          minLines: 4,
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: lightDarkBackgroundColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              hintText: "Description",
+              hintStyle: TextStyle(
+                color: Colors.white.withValues(alpha: 0.8),
+                fontSize: 16,
+              )),
+        ),
+      ],
+    );
   }
 }

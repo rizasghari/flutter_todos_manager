@@ -20,8 +20,6 @@ class _DatePickerState extends State<DatePicker> {
   DateTime currentWeekStartDate = DateTime.now();
   DateTime currentWeekEndDate = DateTime.now().add(Duration(days: 6));
 
-  int _currentWeekIndex = 0;
-
   DateTime _selectedDate = DateTime.now();
 
   int _calculateTotalWeeks(DateTime startDate, DateTime endDate) {
@@ -48,9 +46,7 @@ class _DatePickerState extends State<DatePicker> {
             controller: _pageController,
             physics: PageScrollPhysics(),
             onPageChanged: (index) {
-              setState(() {
-                _currentWeekIndex = index;
-              });
+              setState(() {});
             },
             itemCount: totalWeeks,
             itemBuilder: (context, pageIndex) {

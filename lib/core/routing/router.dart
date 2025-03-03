@@ -14,7 +14,7 @@ final router = GoRouter(routes: [
         pageBuilder: (BuildContext context, GoRouterState state) {
           return CustomTransitionPage<void>(
             key: state.pageKey,
-            child: const CreateNewTodoPage(),
+            child: CreateNewTodoPage(),
             barrierDismissible: true,
             barrierColor: Colors.black38,
             opaque: false,
