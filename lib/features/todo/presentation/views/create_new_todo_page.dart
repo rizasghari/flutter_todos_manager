@@ -6,19 +6,32 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/widgets/date_picker.dart';
 import '../../../../core/widgets/gradient_button.dart';
+import '../../../../core/widgets/priority_tile.dart';
 import '../../../../core/widgets/time_picker.dart';
+import '../../domain/entities/priority.dart';
 
-class CreateNewTodoPage extends ConsumerWidget {
+class CreateNewTodoPage extends ConsumerStatefulWidget {
+  CreateNewTodoPage({super.key});
+
+  ConsumerState<CreateNewTodoPage> createState() => _CreateNewTodoPageState();
+}
+
+class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  TimeOfDay startTime = TimeOfDay.now();
-  TimeOfDay endTime = TimeOfDay.now();
+  TimeOfDay _startTime = TimeOfDay.now();
+  TimeOfDay _endTime = TimeOfDay.now();
+  Priority _priority = Priority.low;
 
-  CreateNewTodoPage({super.key});
+  void _onPrioritySelected(Priority priority) {
+    setState(() {
+      _priority = priority;
+    });
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: _appBar(),
@@ -43,11 +56,61 @@ class CreateNewTodoPage extends ConsumerWidget {
                 _titleAndDescription(),
                 SizedBox(height: 20),
                 _timePicker(),
+                SizedBox(height: 20),
+                _prioritySelection(),
               ],
             ),
           ),
         ),
         _stickyFooter(),
+      ],
+    );
+  }
+
+  Widget _prioritySelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Priority",
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white.withValues(alpha: 0.8),
+          ),
+        ),
+        SizedBox(height: 15),
+        Row(children: [
+          Expanded(
+            flex: 1,
+            child: PriorityTile(
+              priority: Priority.high,
+              color: Color(0XFFFACBBA),
+              isSelected: _priority == Priority.high,
+              onTap: () => _onPrioritySelected(Priority.high),
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 1,
+            child: PriorityTile(
+              priority: Priority.medium,
+              color: Color(0XFFD7F0FF),
+              isSelected: _priority == Priority.medium,
+              onTap: () => _onPrioritySelected(Priority.medium),
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 1,
+            child: PriorityTile(
+              priority: Priority.low,
+              color: Color(0XFFFAD9FF),
+              isSelected: _priority == Priority.low,
+              onTap: () => _onPrioritySelected(Priority.low),
+            ),
+          ),
+        ])
       ],
     );
   }
@@ -59,13 +122,13 @@ class CreateNewTodoPage extends ConsumerWidget {
         Expanded(
             child: TimePicker(
           label: "Start Time",
-          onTimeChanged: (startTime) => this.startTime = startTime,
+          onTimeChanged: (startTime) => _startTime = startTime,
         )),
         SizedBox(width: 15),
         Expanded(
             child: TimePicker(
           label: "End Time",
-          onTimeChanged: (endTime) => this.endTime = endTime,
+          onTimeChanged: (endTime) => _endTime = endTime,
         )),
       ],
     );
