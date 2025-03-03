@@ -17,9 +17,12 @@ class CreateNewTodoPage extends ConsumerStatefulWidget {
 }
 
 class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
+  DateTime _selectedDate = DateTime.now();
   TimeOfDay _startTime = TimeOfDay.now();
   TimeOfDay _endTime = TimeOfDay.now();
   Priority _priority = Priority.low;
@@ -49,19 +52,22 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
           scrollDirection: Axis.vertical,
           child: Padding(
             padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _calendar(),
-                SizedBox(height: 20),
-                _titleAndDescription(),
-                SizedBox(height: 20),
-                _timePicker(),
-                SizedBox(height: 20),
-                _prioritySelection(),
-                SizedBox(height: 30),
-                _setAlert(),
-              ],
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _calendar(),
+                  SizedBox(height: 20),
+                  _titleAndDescription(),
+                  SizedBox(height: 20),
+                  _timePicker(),
+                  SizedBox(height: 20),
+                  _prioritySelection(),
+                  SizedBox(height: 30),
+                  _setAlert(),
+                ],
+              ),
             ),
           ),
         ),
@@ -148,16 +154,46 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-            child: TimePicker(
-          label: "Start Time",
-          onTimeChanged: (startTime) => _startTime = startTime,
-        )),
+          child: FormField<TimeOfDay>(
+            initialValue: _startTime,
+            validator: (value) {
+              if (value == null || value.isAfter(_endTime) || value.isAtSameTimeAs(_endTime)) {
+                return "Invalid start time";
+              }
+              return null;
+            },
+            builder: (state) {
+              return TimePicker(
+                label: "Start Time",
+                onTimeChanged: (startTime) {
+                  _startTime = startTime;
+                  state.didChange(startTime);
+                },
+              );
+            },
+          ),
+        ),
         SizedBox(width: 15),
         Expanded(
-            child: TimePicker(
-          label: "End Time",
-          onTimeChanged: (endTime) => _endTime = endTime,
-        )),
+          child: FormField<TimeOfDay>(
+            initialValue: _endTime,
+            validator: (value) {
+              if (value == null || value.isBefore(_startTime) || value.isAtSameTimeAs(_startTime)) {
+                return "Invalid end time";
+              }
+              return null;
+            },
+            builder: (state) {
+              return TimePicker(
+                label: "End Time",
+                onTimeChanged: (endTime) {
+                  _endTime = endTime;
+                  state.didChange(endTime);
+                },
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -173,7 +209,20 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
         color: backgroundColor,
         child: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-          child: GradientButton(label: "Create Task", onPressed: () => {}),
+          child: GradientButton(
+            label: "Create Task",
+            onPressed: () => {
+              if (_formKey.currentState!.validate()) {
+
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Please fill all the fields'),
+                  ),
+                )
+              },
+            },
+          ),
         ),
       ),
     );
@@ -202,7 +251,11 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
   }
 
   Widget _calendar() {
-    return DatePicker();
+    return DatePicker(onDateSelected: (selectedDate) {
+      setState(() {
+        _selectedDate = selectedDate;
+      });
+    });
   }
 
   Widget _titleAndDescription() {
@@ -217,38 +270,54 @@ class _CreateNewTodoPageState extends ConsumerState<CreateNewTodoPage> {
           ),
         ),
         SizedBox(height: 10),
-        TextField(
+        TextFormField(
           controller: _titleController,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
           decoration: InputDecoration(
-              filled: true,
-              fillColor: lightDarkBackgroundColor,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              hintText: "Name",
-              hintStyle: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
-                fontSize: 16,
-              )),
+            filled: true,
+            fillColor: lightDarkBackgroundColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            hintText: "Name",
+            hintStyle: TextStyle(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 16,
+            ),
+          ),
+          validator: (vale) {
+            if (vale == null || vale.isEmpty) {
+              return "Please enter a name";
+            }
+            return null;
+          },
         ),
         SizedBox(height: 15),
-        TextField(
+        TextFormField(
           controller: _descriptionController,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
           maxLines: 4,
           minLines: 4,
           decoration: InputDecoration(
-              filled: true,
-              fillColor: lightDarkBackgroundColor,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              hintText: "Description",
-              hintStyle: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
-                fontSize: 16,
-              )),
+            filled: true,
+            fillColor: lightDarkBackgroundColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            hintText: "Description",
+            hintStyle: TextStyle(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 16,
+            ),
+          ),
         ),
       ],
     );

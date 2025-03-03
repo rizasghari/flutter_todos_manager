@@ -5,7 +5,9 @@ import 'package:flutter_todos_manager/core/widgets/date_tile.dart';
 import 'package:intl/intl.dart';
 
 class DatePicker extends StatefulWidget {
-  const DatePicker({super.key});
+  final ValueChanged<DateTime> onDateSelected;
+
+  const DatePicker({super.key, required this.onDateSelected});
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -30,6 +32,7 @@ class _DatePickerState extends State<DatePicker> {
   void _updateSelectedDate(DateTime selectedDate) {
     setState(() {
       _selectedDate = selectedDate;
+      widget.onDateSelected(selectedDate);
     });
   }
 
@@ -50,18 +53,21 @@ class _DatePickerState extends State<DatePicker> {
             },
             itemCount: totalWeeks,
             itemBuilder: (context, pageIndex) {
-              currentWeekStartDate = startDate.add(Duration(days: pageIndex * 7));
+              currentWeekStartDate =
+                  startDate.add(Duration(days: pageIndex * 7));
               currentWeekEndDate = currentWeekStartDate.add(Duration(days: 6));
               List<Widget> dayTiles = List.generate(
                 7,
                 (dayOffset) {
-                  DateTime date = currentWeekStartDate.add(Duration(days: dayOffset));
+                  DateTime date =
+                      currentWeekStartDate.add(Duration(days: dayOffset));
                   return DateTile(
                     date: date,
                     isSelected: date.day == _selectedDate.day &&
                         date.month == _selectedDate.month &&
                         date.year == _selectedDate.year,
-                    isDisabled: date.isBefore(DateTime.now().add(Duration(days: -1))),
+                    isDisabled:
+                        date.isBefore(DateTime.now().add(Duration(days: -1))),
                     onDateSelected: _updateSelectedDate,
                   );
                 },
